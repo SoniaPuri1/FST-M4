@@ -1,0 +1,134 @@
+Pig Project:Activity 1
+Prerequistes before Pig File creation:
+To create input files on Local(i.e Linux)
+Vim episodeIV_dialouges.txt
+Vim episodeV_dialouges.txt
+Vim episodeVI_dialouges.txt
+
+To make directory and validate:
+hdfs dfs -mkdir /user/Sonia
+hdfs dfs -mkdir /user/Sonia/Project
+hdfs dfs -ls /user/Sonia/Project
+
+To place the files on HDFS:
+hdfs dfs -put ./episodeIV_dialouges.txt /user/Sonia/Project/episodeIV_dialouges.txt
+hdfs dfs -put ./episodeV_dialouges.txt /user/Sonia/Project/episodeV_dialouges.txt
+hdfs dfs -put ./episodeVI_dialouges.txt /user/Sonia/Project/episodeVI_dialouges.txt
+
+To view the files in the destination folder:
+hdfs dfs -ls /user/Sonia/Project/
+
+
+
+Pig File 1
+
+Create a pig File:
+vim lineCount.pig
+
+
+--Load input file from HDFS
+inputFile = LOAD 'hdfs:///user/Sonia/Project/episodeIV_dialouges.txt' USING PigStorage ('\t') AS (name:chararray, line:chararray);
+
+ranked = RANK inputFile;
+OnlyDialogues= FILTER ranked BY (rank_inputFile>2);
+
+groupByName = GROUP OnlyDialogues BY Name;
+
+names = FOREACH groupByName GENERATE $0 as namw, COUNT($1) as no_of_lines;
+namesOrdered = ORDER names BY no_of_lines DESC;
+
+-- Store the result in HDFS
+
+STORE namesOrdered INTO 'hdfs:///user/Sonia/results' USING PigStorage('\t');;                                          
+
+
+To view the results:
+hdfs dfs -cat /user/Sonia/results/part-r-00000
+
+Save a copy of the output in the local system,i.e, outside of the HDFS
+hdfs dfs -copyToLocal /user/Sonia/results/part-r-00000 .
+
+Result shown in Powershell:
+root@43e715da0cf3:/# hdfs dfs -copyToLocal /user/Sonia/results/part-r-00000 .
+root@43e715da0cf3:/# ls
+bin                      episodeV_dialouges.txt  media                  pig_1638246030899.log  run   var
+boot                     etc                     metastore_db           pig_1638246185669.log  sbin
+derby.log                home                    mnt                    pig_1638246364553.log  srv
+dev                      lib                     opt                    pig_1638246779641.log  sys
+episodeIV_dialouges.txt  lib64                   part-r-00000           proc                   tmp
+episodeVI_dialouges.txt  lineCount.pig           pig_1638245181534.log  root                   usr
+root@43e715da0cf3:/#
+
+
+Pig File 2
+vim lineCount1.pig
+
+--Load input file from HDFS
+inputFile = LOAD 'hdfs:///user/Sonia/Project/episodeV_dialouges.txt' USING PigStorage ('\t') AS (name:chararray, line:chararray);
+
+
+ranked = RANK inputFile;
+OnlyDialogues= FILTER ranked BY (rank_inputFile>2);
+
+groupByName = GROUP OnlyDialogues BY Name;
+
+names = FOREACH groupByName GENERATE $0 as namw, COUNT($1) as no_of_lines;
+namesOrdered = ORDER names BY no_of_lines DESC;
+
+-- Store the result in HDFS
+
+STORE namesOrdered INTO 'hdfs:///user/Sonia/results1' USING PigStorage('\t');                                          
+
+
+To view the results:
+hdfs dfs -cat /user/Sonia/results1/part-r-00000
+
+Save a copy of the output in the local system,i.e, outside of the HDFS
+Note: This time I tried saving the file into local naming result1
+ hdfs dfs -copyToLocal /user/Sonia/results1/part-r-00000 ./result1
+
+Result shown in Powershell:
+root@43e715da0cf3:/# ls
+bin        dev                      episodeV_dialouges.txt  lib            lineCount1.pig  mnt           pig_1638245181534.log  pig_1638246364553.log  pig_1638328687923.log  result1  sbin  tmp
+boot       episodeIV_dialouges.txt  etc                     lib64          media           opt           pig_1638246030899.log  pig_1638246779641.log  pig_1638328910224.log  root     srv   usr
+derby.log  episodeVI_dialouges.txt  home                    lineCount.pig  metastore_db    part-r-00000  pig_1638246185669.log  pig_1638328561502.log  proc                   run      sys   var
+root@43e715da0cf3:/#
+
+
+Pig File 3
+vim lineCount2.pig
+
+--Load input file from HDFS
+inputFile = LOAD 'hdfs:///user/Sonia/Project/episodeVI_dialouges.txt' USING PigStorage ('\t') AS (name:chararray, line:chararray);
+
+
+ranked = RANK inputFile;
+OnlyDialogues= FILTER ranked BY (rank_inputFile>2);
+
+groupByName = GROUP OnlyDialogues BY Name;
+
+names = FOREACH groupByName GENERATE $0 as namw, COUNT($1) as no_of_lines;
+namesOrdered = ORDER names BY no_of_lines DESC;
+
+  
+-- Store the result in HDFS
+STORE namesOrdered INTO 'hdfs:///user/Sonia/results2' USING PigStorage('\t');
+
+
+To view the results:
+hdfs dfs -cat /user/Sonia/results2/part-r-00000
+
+Save a copy of the output in the local system,i.e, outside of the HDFS
+Note: This time I tried saving the file into local naming result2
+ hdfs dfs -copyToLocal /user/Sonia/results1/part-r-00000 ./result2
+
+Result shown in Powershell:
+root@43e715da0cf3:/# ls
+
+root@43e715da0cf3:/# ls
+bin        dev                      episodeV_dialouges.txt  lib            lineCount1.pig  metastore_db  part-r-00000           pig_1638246185669.log  pig_1638328561502.log  pig_1638329972506.log  results2  sbin  tmp
+boot       episodeIV_dialouges.txt  etc                     lib64          lineCount2.pig  mnt           pig_1638245181534.log  pig_1638246364553.log  pig_1638328687923.log  proc                   root      srv   usr
+derby.log  episodeVI_dialouges.txt  home                    lineCount.pig  media           opt           pig_1638246030899.log  pig_1638246779641.log  pig_1638328910224.log  result1                run       sys   var
+root@43e715da0cf3:/#
+
+

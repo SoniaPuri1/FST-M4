@@ -1,0 +1,199 @@
+Activity 1:
+Count the number of lines spoken by each character
+
+step 1 - Created a db naming dialogue
+hive> create database dialogue;
+hive> show databases;
+OK
+default
+dialogue
+Time taken: 0.022 seconds, Fetched: 2 row(s)
+
+
+
+step 2 - Create a table named character:
+hive> CREATE TABLE character
+    > (name STRING, dialogues STRING)
+    > ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+    > TBLPROPERTIES ("skip.header.line.count"="1");
+OK
+Time taken: 0.978 seconds
+
+step 3 - to see the structure of the table:
+
+hive> DESCRIBE character;
+OK
+name                    string
+dialogues               string
+Time taken: 0.044 seconds, Fetched: 2 row(s)
+hive>
+
+step 4 - To add into the character table from a local file (episodeIV_dialouges.txt)
+hive> LOAD DATA LOCAL INPATH
+    > '/episodeIV_dialouges.txt'
+    > INTO TABLE character;
+Loading data to table default.character
+OK
+Time taken: 1.062 seconds
+
+step 5 - To see the data that has been loaded into the character table, use the SELECT query:
+hive> SELECT * FROM character;
+
+
+step 6 - To count the number of rows
+hive> SELECT COUNT(*) FROM character;
+
+step 7 - To Count the number of lines spoken by each character in descending order
+hive> SELECT name, COUNT(name) AS no_of_lines FROM character
+    > GROUP BY name
+    > ORDER BY no_of_lines desc;
+
+//Output
+
+Total MapReduce CPU Time Spent: 27 seconds 360 msec
+OK
+LUKE    253
+HAN     152
+THREEPIO        119
+BEN     76
+LEIA    57
+VADER   41
+RED LEADER      36
+BIGGS   34
+TARKIN  28
+OWEN    25
+TROOPER 19
+GOLD LEADER     14
+WEDGE   14
+OFFICER 11
+RED TEN 7
+GOLD FIVE       7
+DODONNA 6
+DEATH STAR INTERCOM VOICE       6
+INTERCOM VOICE  6
+GREEDO  6
+FIRST TROOPER   6
+AUNT BERU       6
+BEN'S VOICE     6
+JABBA   6
+HUMAN   4
+TAGGE   4
+MOTTI   4
+VOICE   3
+SECOND TROOPER  3
+MASSASSI INTERCOM VOICE 3
+COMMANDER       3
+BARTENDER       3
+CAMIE   2
+CHIEF   2
+WILLARD 2
+FIXER   2
+GANTRY OFFICER  2
+GOLD TWO        2
+IMPERIAL OFFICER        2
+WOMAN   1
+WINGMAN'S VOICE 1
+WINGMAN 1
+VOICE OVER DEATH STAR INTERCOM  1
+TROOPER VOICE   1
+TECHNICIAN      1
+SECOND OFFICER  1
+RED TEN'S VOICE 1
+RED SEVEN       1
+RED NINE'S VOICE        1
+RED NINE        1
+RED LEADER'S VOICE      1
+RED ELEVEN      1
+REBEL OFFICER   1
+PORKINS 1
+OFFICER CASS    1
+MAN'S VOICE     1
+LUKE'S VOICE    1
+HAN'S VOICE     1
+FIRST OFFICER   1
+DEAK    1
+CREATURE        1
+CONTROL OFFICER 1
+CHIEF PILOT     1
+CAPTAIN 1
+BERU    1
+BASE VOICE      1
+ASTRO-OFFICER   1
+        1
+Time taken: 49.675 seconds, Fetched: 68 row(s)
+hive>
+
+step 8 - Save the result in HDFS 
+hive> INSERT OVERWRITE DIRECTORY '/Sonia/Project/export'
+    > ROW FORMAT DELIMITED FIELDS TERMINATED BY '/t'
+    > SELECT * FROM character;
+
+
+
+root@43e715da0cf3:/# hdfs dfs -ls /
+Found 3 items
+drwxr-xr-x   - root supergroup          0 2021-12-03 04:48 /sonia
+drwxr-xr-x   - root supergroup          0 2021-12-01 04:12 /tmp
+drwxr-xr-x   - root supergroup          0 2021-12-01 04:15 /user
+root@43e715da0cf3:/# hdfs dfs -ls -R /sonia
+drwxr-xr-x   - root supergroup          0 2021-12-03 04:48 /sonia/Projects
+drwxr-xr-x   - root supergroup          0 2021-12-03 04:49 /sonia/Projects/export
+-rw-r--r--   1 root supergroup      67641 2021-12-03 04:49 /sonia/Projects/export/000000_0
+root@43e715da0cf3:/#
+
+
+root@43e715da0cf3:/# hdfs dfs -cat /sonia/Projects/export/000000_0
+        \N
+THREEPIO        Did you hear that? They've shut down the main reactor. We'll be destroyed for sure. This is madness!
+THREEPIO        We're doomed!
+THREEPIO        There'll be no escape for the Princess this time.
+THREEPIO        What's that?
+THREEPIO        I should have known better than to trust the logic of a half-sized thermocapsulary dehousing assister...
+LUKE    Hurry up! Come with me! What are you waiting for?! Get in gear!
+THREEPIO        Artoo! Artoo-Detoo, where are you?
+THREEPIO        At last! Where have you been?
+THREEPIO        They're heading in this direction. What are we going to do? We'll be sent to the spice mines of Kessel or smashed into who knows what!
+THREEPIO        Wait a minute, where are you going?
+IMPERIAL OFFICER        The Death Star plans are not in the main computer.
+VADER   Where are those transmissions you intercepted?
+REBEL OFFICER   We intercepted no transmissions. Aaah... This is a consular ship. Were on a diplomatic mission.
+VADER   If this is a consular ship... where is the Ambassador?
+VADER   Commander, tear this ship apart until you've found those plans and bring me the Ambassador. I want her alive!
+TROOPER There she is! Set
+
+
+
+
+
+Activity 2:
+
+Count the number of dialogues where the name "Luke" is said in EpisodeIV.
+
+
+hive> SELECT COUNT(*) FROM character
+    > WHERE INSTR(dialogues, "Luke")>0;
+Query ID = root_20211203050600_76a4e1a1-b36f-489f-964f-169deec49123
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1638242682980_0017, Tracking URL = http://43e715da0cf3:8088/proxy/application_1638242682980_0017/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1638242682980_0017
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2021-12-03 05:06:11,029 Stage-1 map = 0%,  reduce = 0%
+2021-12-03 05:06:16,221 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 2.86 sec
+2021-12-03 05:06:23,422 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 5.43 sec
+MapReduce Total cumulative CPU time: 5 seconds 430 msec
+Ended Job = job_1638242682980_0017
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 5.43 sec   HDFS Read: 81945 HDFS Write: 102 SUCCESS
+Total MapReduce CPU Time Spent: 5 seconds 430 msec
+OK
+56
+Time taken: 25.18 seconds, Fetched: 1 row(s)
+hive>
