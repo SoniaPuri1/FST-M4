@@ -1,0 +1,31 @@
+sing vim, create a file named EmpData.csv and add the data from the previous slide in it.
+
+$ vim EmpData.csv
+Once the data is added and saved, run the hive command to start the Hive CLI:
+
+$ hive
+
+hive> SELECT * FROM employee;
+
+hive> SELECT COUNT(*) FROM employee;
+
+# A simple GET request from HDFS
+hive> SELECT * FROM employee;
+
+
+# Column operations
+hive> SELECT  id, name FROM employee;
+# Row operation
+hive> SELECT * FROM employee WHERE salary > 30000;
+# Column operation that need aggregation
+hive> SELECT count(*) FROM employee; 
+
+To export results to local filesystem, run the following query:
+#Exports to LOCAL directory
+hive> INSERT OVERWRITE LOCAL DIRECTORY '/export' 
+    > ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+    > SELECT * FROM emp.employee;
+
+
+To view the result, you can use the cat command in regular Linux shell:
+$ cat /path/to/result/* > output.csv
